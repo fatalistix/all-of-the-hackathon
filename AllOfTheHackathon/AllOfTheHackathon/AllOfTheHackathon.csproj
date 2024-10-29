@@ -13,6 +13,9 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0-rc.1.24431.7" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0-rc.1.24431.7" />
       <EmbeddedResource Include="Resources\*.csv" />
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
