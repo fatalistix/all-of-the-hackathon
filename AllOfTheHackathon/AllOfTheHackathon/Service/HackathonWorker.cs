@@ -1,5 +1,6 @@
 using AllOfTheHackathon.Repository;
 using AllOfTheHackathon.Service.Transient;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace AllOfTheHackathon.Service;
@@ -8,11 +9,14 @@ public class HackathonWorker(EmployeeCsvRepository repository,
     Hackathon hackathon, 
     HrManager hrManager, 
     HrDirector hrDirector, 
-    IHostApplicationLifetime applicationLifetime) : IHostedService
+    IHostApplicationLifetime applicationLifetime, 
+    IConfiguration configuration) : IHostedService
 {
-    private const int HackathonTimes = 1_000;
-    private const string TeamLeadsResources = "AllOfTheHackathon.Resources.Teamleads20.csv";
-    private const string JuniorsResources = "AllOfTheHackathon.Resources.Juniors20.csv";
+    private readonly int _hackathonTimes = configuration.GetValue<int>("Hackathon:Times");
+    private readonly string _teamLeadsResources = configuration.GetValue<string>("Repository:Csv:TeamLeadsFileLocation") 
+                                                  ?? throw new InvalidOperationException("Setting \"Repository:Csv:TeamLeadsFileLocation\" must be set");
+    private readonly string _juniorsResources = configuration.GetValue<string>("Repository:Csv:JuniorsFileLocation") 
+                                                ?? throw new InvalidOperationException("Setting \"Repository:Csv:JuniorsFileLocation\" must be set");
     
     public Task StartAsync(CancellationToken cancellationToken)
     {
@@ -22,14 +26,14 @@ public class HackathonWorker(EmployeeCsvRepository repository,
 
     private void Run()
     {
-        repository.Load(TeamLeadsResources);
+        repository.Load(_teamLeadsResources);
         var teamLeads = repository.Get();
         
-        repository.Load(JuniorsResources);
+        repository.Load(_juniorsResources);
         var juniors = repository.Get();
 
         var summarySatisfaction = 0.0;
-        for (var i = 0; i < HackathonTimes; ++i)
+        for (var i = 0; i < _hackathonTimes; ++i)
         {
             var (teamLeadsWishlists, juniorsWishlists) = hackathon.Hold(teamLeads, juniors);
             
@@ -38,8 +42,8 @@ public class HackathonWorker(EmployeeCsvRepository repository,
             summarySatisfaction += globalSatisfaction;
         }
         
-        Console.WriteLine($"Средний уровень удовлетворенности по {HackathonTimes} хакатонам:");
-        Console.WriteLine(summarySatisfaction / HackathonTimes);
+        Console.WriteLine($"Средний уровень удовлетворенности по {_hackathonTimes} хакатонам:");
+        Console.WriteLine(summarySatisfaction / _hackathonTimes);
         
         applicationLifetime.StopApplication();
     }
