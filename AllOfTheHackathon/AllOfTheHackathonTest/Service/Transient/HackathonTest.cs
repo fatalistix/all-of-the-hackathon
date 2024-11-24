@@ -30,7 +30,7 @@ public class HackathonTest
 
         var (teamLeadsWishlists, juniorsWishlists) = _hackathon.Hold(teamLeads, juniors);
         Assert.AreEqual(teamLeads.Count, teamLeadsWishlists.Count, "Number of wishlists must be equal with number of team leads");
-        Assert.AreEqual(juniors.Count, juniorsWishlists.Count, "Size of wishlist must be 5");
+        Assert.AreEqual(juniors.Count, juniorsWishlists.Count, "Size of wishlist must be equal with number of juniors");
 
         foreach (var wishlist in juniorsWishlists)
         {
