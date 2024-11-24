@@ -7,6 +7,8 @@ public class Hackathon
 {
     public (IList<Wishlist> teamLeadsWishlists, IList<Wishlist> juniorsWhishLists) Hold(in IList<Employee> teamLeads, in IList<Employee> juniors)
     {
+        Validate(teamLeads, juniors);
+        
         var teamLeadsWishlists = new List<Wishlist>();
         var juniorsWishLists = new List<Wishlist>();
         
@@ -27,7 +29,7 @@ public class Hackathon
         return (teamLeadsWishlists, juniorsWishLists);
     }
 
-    private void Validate(in IList<Employee> teamLeads, in IList<Employee> juniors)
+    private static void Validate(in IList<Employee> teamLeads, in IList<Employee> juniors)
     {
         if (teamLeads.Count != juniors.Count)
         {
