@@ -1,4 +1,5 @@
-﻿using AllOfTheHackathon.Contracts;
+﻿using AllOfTheHackathon.Calculator;
+using AllOfTheHackathon.Contracts;
 using AllOfTheHackathon.Repository;
 using AllOfTheHackathon.Service;
 using AllOfTheHackathon.Service.Transient;
@@ -14,6 +15,7 @@ var host = Host.CreateDefaultBuilder(args).ConfigureServices((_, services) =>
     services.AddTransient<HrManager>();
     services.AddTransient<HrDirector>();
     services.AddTransient<EmployeeCsvRepository>();
+    services.AddTransient<ICalculator, HarmonicMeanCalculator>();
 }).Build();
 
 host.Run();
