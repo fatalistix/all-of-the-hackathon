@@ -1,0 +1,10 @@
+services:
+  
+  db:
+    image: 'postgres:16.2'
+    container_name: 'all-of-the-hackathon-db'
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5434:5432"
