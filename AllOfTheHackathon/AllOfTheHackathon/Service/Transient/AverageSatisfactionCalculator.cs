@@ -9,6 +9,6 @@ public class AverageSatisfactionCalculator(
     {
         var averageSatisfaction = hackathonContext.Hackathons.Sum(h => h.AverageSatisfaction);
         var totalHackathons = hackathonContext.Hackathons.Count();
-        return (averageSatisfaction, totalHackathons);
+        return (averageSatisfaction / totalHackathons, totalHackathons);
     }
 }
