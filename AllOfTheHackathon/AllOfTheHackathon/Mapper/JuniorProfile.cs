@@ -14,5 +14,12 @@ public class JuniorProfile : Profile
         CreateMap<Employee, JuniorEntity>().ForMember(
             dest => dest.Name,
             opt => opt.MapFrom(src => src.Name));
+        
+        CreateMap<JuniorEntity, Employee>().ForMember(
+            dest => dest.Id,
+            opt => opt.MapFrom(src => src.Id));
+        CreateMap<JuniorEntity, Employee>().ForMember(
+            dest => dest.Name,
+            opt => opt.MapFrom(src => src.Name));
     }
 }

@@ -14,5 +14,12 @@ public class TeamLeadProfile : Profile
         CreateMap<Employee, TeamLeadEntity>().ForMember(
             dest => dest.Name,
             opt => opt.MapFrom(src => src.Name));
+
+        CreateMap<TeamLeadEntity, Employee>().ForMember(
+            dest => dest.Id,
+            opt => opt.MapFrom(src => src.Id));
+        CreateMap<TeamLeadEntity, Employee>().ForMember(
+            dest => dest.Name,
+            opt => opt.MapFrom(src => src.Name));
     }
 }
