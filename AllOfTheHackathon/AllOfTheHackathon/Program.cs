@@ -25,6 +25,9 @@ var host = Host.CreateDefaultBuilder(args).ConfigureServices((_, services) =>
     services.AddAutoMapper(typeof(TeamProfile));
     services.AddAutoMapper(typeof(TeamLeadProfile));
     services.AddAutoMapper(typeof(TeamLeadWishlistProfile));
+    services.AddTransient<AverageSatisfactionCalculator>();
+    services.AddTransient<EmployeeUpdater>();
+    services.AddTransient<HackathonEvent>();
 }).Build();
 
 host.Run();
