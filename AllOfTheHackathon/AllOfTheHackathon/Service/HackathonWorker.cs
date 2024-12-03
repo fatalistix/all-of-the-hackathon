@@ -1,29 +1,22 @@
 using AllOfTheHackathon.Database.Context;
 using AllOfTheHackathon.Database.Entity;
-using AllOfTheHackathon.Repository;
 using AllOfTheHackathon.Service.Transient;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
 namespace AllOfTheHackathon.Service;
 
-public class HackathonWorker(EmployeeCsvRepository repository, 
-    Hackathon hackathon, 
-    HrManager hrManager, 
-    HrDirector hrDirector, 
+public class HackathonWorker(
     IHostApplicationLifetime applicationLifetime, 
     IConfiguration configuration,
-    IMapper mapper,
-    HackathonContext hackathonContext) : IHostedService
+    EmployeeUpdater employeeUpdater,
+    HackathonEvent hackathonEvent,
+    HackathonContext hackathonContext,
+    AverageSatisfactionCalculator averageSatisfactionCalculator) : IHostedService
 {
     private readonly int _hackathonTimes = configuration.GetValue<int>("Hackathon:Times");
-    private readonly string _teamLeadsResources = configuration.GetValue<string>("Repository:Csv:TeamLeadsFileLocation") 
-                                                  ?? throw new InvalidOperationException("Setting \"Repository:Csv:TeamLeadsFileLocation\" must be set");
-    private readonly string _juniorsResources = configuration.GetValue<string>("Repository:Csv:JuniorsFileLocation") 
-                                                ?? throw new InvalidOperationException("Setting \"Repository:Csv:JuniorsFileLocation\" must be set");
-    
+
     public Task StartAsync(CancellationToken cancellationToken)
     {
         Task.Run(Run, cancellationToken);
@@ -32,70 +25,133 @@ public class HackathonWorker(EmployeeCsvRepository repository,
 
     private void Run()
     {
-        repository.Load(_teamLeadsResources);
-        var teamLeads = repository.Get();
-
-        var teamLeadsEntities = teamLeads.Select(mapper.Map<TeamLeadEntity>).ToList();
-        hackathonContext.TeamLeads.AddRange(teamLeadsEntities);
-        hackathonContext.SaveChanges();
+        employeeUpdater.UpdateEmployees(); 
         
-        repository.Load(_juniorsResources);
-        var juniors = repository.Get();
-
-        var juniorsEntities = juniors.Select(mapper.Map<JuniorEntity>).ToList();
-        hackathonContext.Juniors.AddRange(juniorsEntities);
-        hackathonContext.SaveChanges();
-
-        var summarySatisfaction = 0.0;
-        for (var i = 0; i < _hackathonTimes; ++i)
+        while (true)
         {
-            var (teamLeadsWishlists, juniorsWishlists) = hackathon.Hold(teamLeads, juniors);
+            Console.WriteLine("Выберите действие:");
+            Console.WriteLine("1 - Провести хакатон");
+            Console.WriteLine("2 - Распечатать списки участников, сформированную гармоничность и рассчитанную гармоничность");
+            Console.WriteLine("3 - Рассчитать среднюю гармоничность по всем хакатонам");
+            Console.WriteLine("q - Выйти");
+            Console.Write("> ");
 
-            var teamLeadWishlistsEntities = teamLeadsWishlists.Select(mapper.Map<TeamLeadWishlistEntity>).ToList();
-            hackathonContext.TeamLeadWishlists.AddRange(teamLeadWishlistsEntities);
-            var juniorsWishlistsEntities = juniorsWishlists.Select(mapper.Map<JuniorWishlistEntity>).ToList();
-            hackathonContext.JuniorWishlists.AddRange(juniorsWishlistsEntities);
-            
-            var teams = hrManager.BuildTeams(teamLeads, juniors, teamLeadsWishlists, juniorsWishlists);
+            var value = Console.ReadLine();
 
-            var teamsEntities = teams.Select(mapper.Map<TeamEntity>).ToList();
-            foreach (var team in teamsEntities)
+            switch (value)
             {
-                foreach (var juniorEntity in juniorsEntities.Where(juniorEntity => team.Junior.Id == juniorEntity.Id))
+                case "1":
                 {
-                    team.Junior = juniorEntity;
+                    DoHackathon();
+                    break;
                 }
-
-                foreach (var teamLeadEntity in teamLeadsEntities.Where(teamLeadEntity => team.TeamLead.Id == teamLeadEntity.Id))
+                case "2":
                 {
-                    team.TeamLead = teamLeadEntity;
+                    DoPrintHackathon();
+                    break;
+                }
+                case "3":
+                {
+                    DoPrintAverageSatisfaction();
+                    break;
+                }
+                case "q":
+                {
+                    applicationLifetime.StopApplication();
+                    return;
+                }
+                default:
+                {
+                    Console.WriteLine("Неожиданная команда, попробуйте еще раз");
+                    Console.Write("> ");
+                    break;
                 }
             }
-            hackathonContext.Teams.AddRange(teamsEntities); 
-            
-            var globalSatisfaction = hrDirector.Calculate(teams, teamLeadsWishlists, juniorsWishlists);
-            summarySatisfaction += globalSatisfaction;
-            
-            var id = Guid.NewGuid();
-            var hackathonEntity = new HackathonEntity
-            {
-                Id = id,
-                TeamLeads = teamLeadsEntities,
-                Juniors = juniorsEntities,
-                TeamLeadWishlists = teamLeadWishlistsEntities,
-                JuniorWishlists = juniorsWishlistsEntities,
-                Teams = teamsEntities,
-                AverageSatisfaction = globalSatisfaction
-            };
-            
-            hackathonContext.Hackathons.Add(hackathonEntity);
+        }
+    }
+
+    private void DoHackathon()
+    {
+        var id = hackathonEvent.Handle();
+        hackathonContext.SaveChanges();
+        Console.WriteLine($"Хакатон проведен. Идентификатор: {id}");
+        Console.WriteLine();
+    }
+
+    private void DoPrintHackathon()
+    {
+        Console.WriteLine("Введите идентификатор:");
+        Console.Write("> ");
+        var idStr = Console.ReadLine();
+        if (idStr == null)
+        {
+            Console.WriteLine($"Невалидные данные: {idStr}");
+            return;
+        }
+
+        Guid id;
+        try
+        {
+            id = Guid.Parse(idStr);
+        }
+        catch (FormatException e)
+        {
+            Console.WriteLine($"Input is not recognized: {e.Message}");
+            return;
+        }
+
+        HackathonEntity hackathon;
+        try
+        {
+            var tempHackathons = hackathonContext.Hackathons
+                .Where(h => h.Id == id);
+            tempHackathons =  tempHackathons.Include(h => h.Juniors)
+                .Include(h => h.TeamLeads)
+                .Include(h => h.JuniorWishlists)
+                .Include(h => h.TeamLeadWishlists)
+                .Include(h => h.Teams)
+                .ThenInclude(teamEntity => teamEntity.Junior)
+                .Include(h => h.Teams)
+                .ThenInclude(teamEntity => teamEntity.TeamLead)
+                .AsSplitQuery();
+            hackathon = tempHackathons.First();
+        }
+        catch (InvalidOperationException e)
+        {
+            Console.WriteLine($"Хакатон не найден: {e.Message}");
+            return;
         }
         
-        Console.WriteLine($"Средний уровень удовлетворенности по {_hackathonTimes} хакатонам:");
-        Console.WriteLine(summarySatisfaction / _hackathonTimes);
-        hackathonContext.SaveChanges();
-        
-        applicationLifetime.StopApplication();
+        Console.WriteLine($"Хакатон {id}");
+        Console.WriteLine();
+        Console.WriteLine("Джуны:");
+        foreach (var junior in hackathon.Juniors)
+        {
+            Console.WriteLine($"  - №{junior.Id}\t{junior.Name}");
+        }
+        Console.WriteLine();
+        Console.WriteLine("Тимлиды:");
+        foreach (var teamLead in hackathon.TeamLeads)
+        {
+            Console.WriteLine($"  - №{teamLead.Id}\t{teamLead.Name}");
+        }
+        Console.WriteLine();
+        Console.WriteLine("Сформированные команды (джун - тимлид)");
+        foreach (var team in hackathon.Teams)
+        {
+            Console.WriteLine($"  - {team.Junior.Name}\t-{team.TeamLead.Name}");
+        }
+        Console.WriteLine();
+        Console.WriteLine($"Уровень гармоничности {hackathon.AverageSatisfaction}");
+        Console.WriteLine();
+        Console.WriteLine();
+    }
+
+    private void DoPrintAverageSatisfaction()
+    {
+        var (average, total) = averageSatisfactionCalculator.Calculate();
+        Console.WriteLine($"Средний уровень удовлетворенности по {total} хакатонам равен {average}");
+        Console.WriteLine();
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
