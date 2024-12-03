@@ -6,6 +6,7 @@ using AllOfTheHackathon.Repository;
 using AllOfTheHackathon.Service;
 using AllOfTheHackathon.Service.Transient;
 using AllOfTheHackathon.TeamBuildingStrategy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -18,7 +19,15 @@ var host = Host.CreateDefaultBuilder(args).ConfigureServices((_, services) =>
     services.AddTransient<HrDirector>();
     services.AddTransient<EmployeeCsvRepository>();
     services.AddTransient<ICalculator, HarmonicMeanCalculator>();
-    services.AddDbContext<HackathonContext>();
+    services.AddDbContext<HackathonContext>(optionsBuilder =>
+    {
+        optionsBuilder.UseNpgsql(
+            "Host=localhost;" + 
+            "Port=5434;" + 
+            "Database=all-of-the-hackathon;" + 
+            "Username=all-of-the-hackathon-owner;" +
+            "Password=all-of-the-hackathon-password");
+    });
     services.AddAutoMapper(typeof(HackathonProfile));
     services.AddAutoMapper(typeof(JuniorProfile));
     services.AddAutoMapper(typeof(JuniorWishlistProfile));

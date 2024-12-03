@@ -16,16 +16,6 @@ public sealed class HackathonContext : DbContext
     {
         Database.EnsureCreated();
     }
-    
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseNpgsql(
-            "Host=localhost;" + 
-            "Port=5434;" + 
-            "Database=all-of-the-hackathon;" + 
-            "Username=all-of-the-hackathon-owner;" +
-            "Password=all-of-the-hackathon-password");
-    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
