@@ -17,7 +17,7 @@ var host = Host.CreateDefaultBuilder(args).ConfigureServices((_, services) =>
     services.AddTransient<ITeamBuildingStrategy, GaleShapleyTeamBuildingStrategy>();
     services.AddTransient<HrManager>();
     services.AddTransient<HrDirector>();
-    services.AddTransient<EmployeeCsvRepository>();
+    services.AddTransient<IEmployeeCsvRepository, EmployeeCsvRepository>();
     services.AddTransient<ICalculator, HarmonicMeanCalculator>();
     services.AddDbContext<HackathonContext>(optionsBuilder =>
     {
