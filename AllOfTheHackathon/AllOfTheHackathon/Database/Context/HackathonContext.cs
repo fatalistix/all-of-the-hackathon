@@ -17,6 +17,11 @@ public sealed class HackathonContext : DbContext
         Database.EnsureCreated();
     }
 
+    public HackathonContext(DbContextOptions<HackathonContext> options) : base(options)
+    {
+        Database.EnsureCreated();
+    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<HackathonEntity>()
