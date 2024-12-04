@@ -7,7 +7,7 @@ using CsvHelper.Configuration;
 
 namespace AllOfTheHackathon.Repository;
 
-public class EmployeeCsvRepository
+public class EmployeeCsvRepository : IEmployeeCsvRepository
 {
     private IList<Employee> _employees = new List<Employee>();
 
