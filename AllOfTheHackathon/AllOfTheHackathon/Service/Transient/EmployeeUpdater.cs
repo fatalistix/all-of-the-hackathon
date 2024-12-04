@@ -25,11 +25,13 @@ public class EmployeeUpdater(
         
         var teamLeadsEntities = teamLeads.Select(mapper.Map<TeamLeadEntity>).ToList();
         hackathonContext.TeamLeads.Load();
-        var areTeamLeadsSame = hackathonContext.TeamLeads.ToList()
-            .Select(
-                t => teamLeadsEntities
-                    .Find(e => e.Id == t.Id && e.Name == t.Name) != null)
-            .Aggregate((value, result) => value & result);
+        var areTeamLeadsSame = hackathonContext.TeamLeads.Count() == teamLeadsEntities.Count && 
+                               hackathonContext.TeamLeads.ToList()
+                                   .Select(
+                                       t => teamLeadsEntities
+                                           .Find(e => e.Id == t.Id && e.Name == t.Name) != null)
+                                   .Aggregate((value, result) => value & result);
+        
         if (!areTeamLeadsSame)
         {
             hackathonContext.TeamLeads.RemoveRange(hackathonContext.TeamLeads);
@@ -42,11 +44,13 @@ public class EmployeeUpdater(
         
         var juniorsEntities = juniors.Select(mapper.Map<JuniorEntity>).ToList();
         hackathonContext.Juniors.Load();
-        var areJuniorsSame = hackathonContext.Juniors.ToList()
-            .Select(
-                j => juniorsEntities
-                    .Find(e => e.Id == j.Id && e.Name == j.Name) != null)
-            .Aggregate((value, result) => value & result);
+        var areJuniorsSame = hackathonContext.Juniors.Count() == juniorsEntities.Count && 
+                             hackathonContext.Juniors.ToList()
+                                 .Select(
+                                     j => juniorsEntities
+                                         .Find(e => e.Id == j.Id && e.Name == j.Name) != null)
+                                 .Aggregate((value, result) => value & result);
+        
         if (areJuniorsSame)
         {
             return;
