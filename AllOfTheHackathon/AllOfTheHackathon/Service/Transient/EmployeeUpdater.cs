@@ -9,7 +9,7 @@ namespace AllOfTheHackathon.Service.Transient;
 
 public class EmployeeUpdater(
     IConfiguration configuration,
-    EmployeeCsvRepository repository,
+    IEmployeeCsvRepository repository,
     IMapper mapper,
     HackathonContext hackathonContext)
 {
