@@ -37,6 +37,9 @@ var host = Host.CreateDefaultBuilder(args).ConfigureServices((_, services) =>
     services.AddTransient<AverageSatisfactionCalculator>();
     services.AddTransient<EmployeeUpdater>();
     services.AddTransient<HackathonEvent>();
+    services.AddTransient<HackathonScenario>();
+    services.AddTransient<PrintHackathonScenario>();
+    services.AddTransient<PrintAverageSatisfactionScenario>();
 }).Build();
 
 host.Run();
