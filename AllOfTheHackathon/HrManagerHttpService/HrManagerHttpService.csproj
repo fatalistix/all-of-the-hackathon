@@ -16,12 +16,6 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\AllOfTheHackathon\AllOfTheHackathon.csproj" />
-		<None Update="Juniors5.csv">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-		<None Update="Teamleads5.csv">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
 	</ItemGroup>
 
 </Project>

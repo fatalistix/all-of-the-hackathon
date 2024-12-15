@@ -9,17 +9,18 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Include="..\.dockerignore">
-	    <Link>.dockerignore</Link>
-	  </Content>
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\AllOfTheHackathon\AllOfTheHackathon.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="Refit" Version="8.0.0" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="*.csv">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 
 </Project>
