@@ -1,0 +1,8 @@
+POST http://localhost:5000/
+Content-Type: application/json
+
+{
+  "id": 1,
+  "desired_employees": [1, 2, 3, 4, 5],
+  "type": "junior"
+}
