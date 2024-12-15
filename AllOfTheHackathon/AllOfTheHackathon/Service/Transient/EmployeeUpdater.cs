@@ -20,7 +20,7 @@ public class EmployeeUpdater(
     
     public void UpdateEmployees()
     {
-        repository.Load(_teamLeadsResources);
+        repository.LoadFromAssembly(_teamLeadsResources);
         var teamLeads = repository.Get();
         
         var teamLeadsEntities = teamLeads.Select(mapper.Map<TeamLeadEntity>).ToList();
@@ -39,7 +39,7 @@ public class EmployeeUpdater(
             hackathonContext.SaveChanges();
         }
         
-        repository.Load(_juniorsResources);
+        repository.LoadFromAssembly(_juniorsResources);
         var juniors = repository.Get();
         
         var juniorsEntities = juniors.Select(mapper.Map<JuniorEntity>).ToList();
