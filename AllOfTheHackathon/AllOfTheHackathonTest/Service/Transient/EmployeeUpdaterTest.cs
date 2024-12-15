@@ -4,11 +4,12 @@ using AllOfTheHackathon.Mapper;
 using AllOfTheHackathon.Repository;
 using AllOfTheHackathon.Service.Transient;
 using AutoMapper;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Npgsql;
+using Testcontainers.PostgreSql;
 
 namespace AllOfTheHackathonTest.Service.Transient;
 
@@ -54,11 +55,27 @@ public class EmployeeUpdaterTest
                 () => employeeCsvRepositoryMock.Setup(m => m.Get())
                     .Returns(juniors));
         
-        const string connectionString = "DataSource=myshareddb;mode=memory;cache=shared";
-        var keepAliveConnection = new SqliteConnection(connectionString);
-        keepAliveConnection.Open();
+        var postgres = new PostgreSqlBuilder()
+            .WithImage("postgres:16.2")
+            .WithPortBinding(5436, 5432)
+            .WithEnvironment(new Dictionary<string, string>
+                {
+                    { "POSTGRES_USER", "all-of-the-hackathon-owner-test" },
+                    { "POSTGRES_PASSWORD", "all-of-the-hackathon-password-test" },
+                    { "POSTGRES_DB", "all-of-the-hackathon-test" }
+                }
+            ).Build();
+        postgres.StartAsync().Wait();
+
+        const string connectionString = "Host=localhost;" + 
+                                        "Port=5436;" + 
+                                        "Database=all-of-the-hackathon-test;" + 
+                                        "Username=all-of-the-hackathon-owner-test;" + 
+                                        "Password=all-of-the-hackathon-password-test";
+        
+        using var keepAliveConnection = new NpgsqlConnection(connectionString);
         var options = new DbContextOptionsBuilder<HackathonContext>()
-            .UseSqlite(connectionString).Options;
+            .UseNpgsql(connectionString).Options;
 
         var hackathonContext = new HackathonContext(options);
 
@@ -82,8 +99,8 @@ public class EmployeeUpdaterTest
             Assert.IsNotNull(foundTeamLead);
         }
         
-        employeeCsvRepositoryMock.Verify(x => x.Load("AllOfTheHackathonTest.Resources.Teamleads2.csv"), Times.Once());
-        employeeCsvRepositoryMock.Verify(x => x.Load("AllOfTheHackathonTest.Resources.Juniors2.csv"), Times.Once());
+        employeeCsvRepositoryMock.Verify(x => x.LoadFromAssembly("AllOfTheHackathonTest.Resources.Teamleads2.csv"), Times.Once());
+        employeeCsvRepositoryMock.Verify(x => x.LoadFromAssembly("AllOfTheHackathonTest.Resources.Juniors2.csv"), Times.Once());
         employeeCsvRepositoryMock.Verify(x => x.Get(), Times.Exactly(2));
     }
 }
