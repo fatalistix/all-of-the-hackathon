@@ -4,6 +4,7 @@ namespace AllOfTheHackathon.Repository;
 
 public interface IEmployeeCsvRepository
 {
-    void Load(string xmlResourcePath);
+    void LoadFromAssembly(string csvResourcePath);
+    void LoadFromExecutingDirectory(string csvResourcePath);
     IList<Employee> Get();
 }

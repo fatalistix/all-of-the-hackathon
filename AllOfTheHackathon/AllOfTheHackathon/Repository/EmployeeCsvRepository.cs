@@ -10,30 +10,45 @@ namespace AllOfTheHackathon.Repository;
 public class EmployeeCsvRepository : IEmployeeCsvRepository
 {
     private IList<Employee> _employees = new List<Employee>();
+    private readonly CsvConfiguration _csvConfiguration = new(CultureInfo.InvariantCulture) 
+    {
+        Delimiter = ";"
+    };
 
-    public void Load(string xmlResourcePath)
+    public void LoadFromAssembly(string csvResourcePath)
     {
         Stream? resourceStream;
         try
         {
-            resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(xmlResourcePath);
+            resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(csvResourcePath);
         }
         catch (Exception e)
         {
-            throw new MissingManifestResourceException($"Resource {xmlResourcePath} is not found", e);
+            throw new MissingManifestResourceException($"Resource {csvResourcePath} is not found", e);
         }
 
         if (resourceStream == null)
         {
-            throw new MissingManifestResourceException($"resource {xmlResourcePath} is not found");
+            throw new MissingManifestResourceException($"resource {csvResourcePath} is not found");
         }
-
-        var csvConfiguration = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            Delimiter = ";"
-        };
+        
         using var reader = new StreamReader(resourceStream);
-        using var csvReader = new CsvReader(reader, csvConfiguration);
+        using var csvReader = new CsvReader(reader, _csvConfiguration);
+
+        csvReader.Read();
+        csvReader.ReadHeader();
+
+        _employees = csvReader.GetRecords<Employee>().ToList();
+    }
+
+    public void LoadFromExecutingDirectory(string csvResourcePath)
+    {
+        if (!File.Exists(csvResourcePath))
+        {
+            throw new FileNotFoundException("file with csv is not found", csvResourcePath);
+        }
+        using var streamReader = new StreamReader(csvResourcePath);
+        using var csvReader = new CsvReader(streamReader, _csvConfiguration);
 
         csvReader.Read();
         csvReader.ReadHeader();
