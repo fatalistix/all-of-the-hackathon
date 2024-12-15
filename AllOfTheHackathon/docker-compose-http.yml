@@ -1,0 +1,221 @@
+services:
+  
+  hr-director:
+    build:
+      context: .
+      dockerfile: ./HrDirectorHttpService/Dockerfile
+    deploy:
+      replicas: 1
+    ports:
+      - "6970:6970"
+    networks:
+      - hackathon_net
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: "postgres:16.2"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d hackathon-problem -U postgres || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - hackathon_net
+  
+  hr-manager:
+    build:
+      context: .
+      dockerfile: ./HrManagerHttpService/Dockerfile
+    deploy:
+      replicas: 1
+    ports:
+      - "6969:6969"
+    depends_on:
+      hr-director:
+        condition: service_started
+    networks:
+      - hackathon_net
+
+  teamlead-1:
+    build:
+      context: .
+      dockerfile: ./EmployeeHttpService/Dockerfile
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: teamlead
+      EMPLOYEE_ID: 1
+    ports:
+      - "6901:6901"
+    depends_on:
+      hr-manager:
+        condition: service_started
+
+  teamlead-2:
+    build:
+      context: .
+      dockerfile: ./EmployeeHttpService/Dockerfile
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: teamlead
+      EMPLOYEE_ID: 2
+    ports:
+      - "6902:6902"
+    depends_on:
+      hr-manager:
+        condition: service_started
+
+  teamlead-3:
+    build:
+      context: .
+      dockerfile: ./EmployeeHttpService/Dockerfile
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: teamlead
+      EMPLOYEE_ID: 3
+    ports:
+      - "6903:6903"
+    depends_on:
+      hr-manager:
+        condition: service_started
+
+  teamlead-4:
+    build:
+      context: .
+      dockerfile: ./EmployeeHttpService/Dockerfile
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: teamlead
+      EMPLOYEE_ID: 4
+    ports:
+      - "6904:6904"
+    depends_on:
+      hr-manager:
+        condition: service_started
+
+  teamlead-5:
+    build:
+      context: .
+      dockerfile: ./EmployeeHttpService/Dockerfile
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: teamlead
+      EMPLOYEE_ID: 5
+    ports:
+      - "6905:6905"
+    depends_on:
+      hr-manager:
+        condition: service_started
+
+  junior-1:
+    build:
+      context: .
+      dockerfile: ./EmployeeHttpService/Dockerfile
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: junior
+      EMPLOYEE_ID: 1
+    ports:
+      - "6911:6911"
+    depends_on:
+      hr-manager:
+        condition: service_started
+
+  junior-2:
+    build:
+      context: .
+      dockerfile: ./EmployeeHttpService/Dockerfile
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: junior
+      EMPLOYEE_ID: 2
+    ports:
+      - "6912:6912"
+    depends_on:
+      hr-manager:
+        condition: service_started
+
+  junior-3:
+    build:
+      context: .
+      dockerfile: ./EmployeeHttpService/Dockerfile
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: junior
+      EMPLOYEE_ID: 3
+    ports:
+      - "6913:6913"
+    depends_on:
+      hr-manager:
+        condition: service_started
+
+  junior-4:
+    build:
+      context: .
+      dockerfile: ./EmployeeHttpService/Dockerfile
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: junior
+      EMPLOYEE_ID: 4
+    ports:
+      - "6914:6914"
+    depends_on:
+      hr-manager:
+        condition: service_started
+
+  junior-5:
+    build:
+      context: .
+      dockerfile: ./EmployeeHttpService/Dockerfile
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: junior
+      EMPLOYEE_ID: 5
+    ports:
+      - "6915:6915"
+    depends_on:
+      hr-manager:
+        condition: service_started
+        
+networks:
+  hackathon_net:
+    driver: bridge
+    name: 
+      hackathon
