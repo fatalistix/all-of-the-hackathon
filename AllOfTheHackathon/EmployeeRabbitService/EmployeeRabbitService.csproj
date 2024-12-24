@@ -7,4 +7,24 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="MassTransit" Version="8.3.2" />
+	  <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.2" />
+	  <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.8" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Juniors5.csv">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="Teamleads5.csv">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\AllOfTheHackathon\AllOfTheHackathon.csproj" />
+	  <ProjectReference Include="..\RabbitCommon\RabbitCommon.csproj" />
+	</ItemGroup>
+
 </Project>

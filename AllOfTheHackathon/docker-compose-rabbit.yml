@@ -1,0 +1,275 @@
+services:
+  
+  hr-director:
+    build:
+      context: .
+      dockerfile: ./HrDirectorRabbitService/Dockerfile
+    deploy:
+      replicas: 1
+    environment:
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+      HACKATHON_TIMES: ${HACKATHON_TIMES}
+    ports:
+      - "6970:6970"
+    networks:
+      - hackathon_net
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBIT_MQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBIT_MQ_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hackathon_net
+
+  db:
+    image: "postgres:16.2"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d hackathon-problem -U postgres || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - hackathon_net
+  
+  hr-manager:
+    build:
+      context: .
+      dockerfile: ./HrManagerRabbitService/Dockerfile
+    deploy:
+      replicas: 1
+    environment:
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      hr-director:
+        condition: service_started
+      teamlead-1:
+        condition: service_started
+      teamlead-2:
+        condition: service_started
+      teamlead-3:
+        condition: service_started
+      teamlead-4:
+        condition: service_started
+      teamlead-5:
+        condition: service_started
+      junior-1:
+        condition: service_started
+      junior-2:
+        condition: service_started
+      junior-3:
+        condition: service_started
+      junior-4:
+        condition: service_started
+      junior-5:
+        condition: service_started
+    networks:
+      - hackathon_net
+
+  teamlead-1:
+    build:
+      context: .
+      dockerfile: ./EmployeeRabbitService/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: teamlead
+      EMPLOYEE_ID: 1
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+
+  teamlead-2:
+    build:
+      context: .
+      dockerfile: ./EmployeeRabbitService/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: teamlead
+      EMPLOYEE_ID: 2
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+
+  teamlead-3:
+    build:
+      context: .
+      dockerfile: ./EmployeeRabbitService/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: teamlead
+      EMPLOYEE_ID: 3
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+
+  teamlead-4:
+    build:
+      context: .
+      dockerfile: ./EmployeeRabbitService/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: teamlead
+      EMPLOYEE_ID: 4
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+
+  teamlead-5:
+    build:
+      context: .
+      dockerfile: ./EmployeeRabbitService/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: teamlead
+      EMPLOYEE_ID: 5
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+
+  junior-1:
+    build:
+      context: .
+      dockerfile: ./EmployeeRabbitService/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: junior
+      EMPLOYEE_ID: 1
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+
+  junior-2:
+    build:
+      context: .
+      dockerfile: ./EmployeeRabbitService/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: junior
+      EMPLOYEE_ID: 2
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+
+  junior-3:
+    build:
+      context: .
+      dockerfile: ./EmployeeRabbitService/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: junior
+      EMPLOYEE_ID: 3
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+
+  junior-4:
+    build:
+      context: .
+      dockerfile: ./EmployeeRabbitService/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: junior
+      EMPLOYEE_ID: 4
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+
+  junior-5:
+    build:
+      context: .
+      dockerfile: ./EmployeeRabbitService/Dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - hackathon_net
+    deploy:
+      replicas: 1
+    environment:
+      EMPLOYEE_TYPE: junior
+      EMPLOYEE_ID: 5
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+
+networks:
+  hackathon_net:
+    driver: bridge
