@@ -1,5 +1,5 @@
-using HrDirectorHttpService.Requests;
 using HrDirectorHttpService.Services;
+using HttpCommon.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HrDirectorHttpService.Controllers;
@@ -9,8 +9,9 @@ namespace HrDirectorHttpService.Controllers;
 public class HrDirectorController(HrDirectorService hrDirectorService)
 {
     [HttpPost]
-    public void SendTeamsAndWishlists([FromBody] TeamRequest teamRequest)
+    public void SendTeamsAndWishlists([FromBody] TeamsAndWishlistsRequest teamsAndWishlistsRequest)
     {
-        hrDirectorService.DoWork(teamRequest.Teams, teamRequest.TeamLeadsWishlists, teamRequest.JuniorsWishlists); 
+        hrDirectorService.DoWork(teamsAndWishlistsRequest.Teams, teamsAndWishlistsRequest.TeamLeadsWishlists,
+            teamsAndWishlistsRequest.JuniorsWishlists);
     }
 }

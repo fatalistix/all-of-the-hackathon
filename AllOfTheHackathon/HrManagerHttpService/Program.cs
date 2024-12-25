@@ -14,7 +14,7 @@ builder.Services.AddSingleton<CollectingService>();
 builder.Services.AddTransient<HrManagerService>();
 builder.Services.AddTransient<HrManager>();
 builder.Services.AddTransient<ITeamBuildingStrategy, GaleShapleyTeamBuildingStrategy>();
-builder.Services.AddTransient<ITeamSender>(_ => RestService.For<ITeamSender>("http://hr-director:6970"));
+builder.Services.AddTransient<ITeamsAndWishlistsSender>(_ => RestService.For<ITeamsAndWishlistsSender>("http://hr-director:6970"));
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.ListenAnyIP(6969);

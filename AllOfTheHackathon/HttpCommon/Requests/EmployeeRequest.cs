@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 
-namespace EmployeeHttpService;
+namespace HttpCommon.Requests;
 
-public record Request(
+public record EmployeeRequest(
     [property: JsonPropertyName("id")] int Id, 
     [property: JsonPropertyName("name")] string Name,
     [property: JsonPropertyName("desired_employees")] IList<int> DesiredEmployees, 

@@ -16,6 +16,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\AllOfTheHackathon\AllOfTheHackathon.csproj" />
+	  <ProjectReference Include="..\HttpCommon\HttpCommon.csproj" />
 	</ItemGroup>
 
 </Project>

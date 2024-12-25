@@ -1,6 +1,7 @@
 ﻿using AllOfTheHackathon.Internal.Extension;
 using AllOfTheHackathon.Repository;
 using EmployeeHttpService;
+using HttpCommon.Requests;
 using Refit;
 
 var employeeType = Environment.GetEnvironmentVariable("EMPLOYEE_TYPE");
@@ -46,4 +47,4 @@ var desiredEmployees = new List<int>([1, 2, 3, 4, 5]);
 desiredEmployees.Shuffle();
 
 var service = RestService.For<IPreferencesSender>("http://hr-manager:6969");
-await service.SendPreferences(new Request(employeeId, name, desiredEmployees, employeeType));
+await service.SendPreferences(new EmployeeRequest(employeeId, name, desiredEmployees, employeeType));

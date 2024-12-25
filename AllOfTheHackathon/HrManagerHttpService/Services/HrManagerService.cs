@@ -2,13 +2,13 @@ using AllOfTheHackathon.Contracts;
 using AllOfTheHackathon.Service.Transient;
 using HrManagerHttpService.Clients;
 using HrManagerHttpService.Models;
-using HrManagerHttpService.Requests;
+using HttpCommon.Requests;
 using Microsoft.Extensions.Hosting;
 
 namespace HrManagerHttpService.Services;
 
 public class HrManagerService(HrManager hrManager, 
-    ITeamSender teamSender,
+    ITeamsAndWishlistsSender teamsAndWishlistsSender,
     IHostApplicationLifetime applicationLifetime)
 {
     public void DoWork(IDictionary<int, EmployeeWithDesiredEmployees> juniorToDesiredTeamLeads, 
@@ -26,10 +26,10 @@ public class HrManagerService(HrManager hrManager,
         
         var teams = hrManager.BuildTeams(teamLeads, juniors, teamLeadsWishlists, juniorsWishlists);
 
-        var request = new TeamRequest(
+        var request = new TeamsAndWishlistsRequest(
             teams, teamLeadsWishlists, juniorsWishlists);
 
-        teamSender.SendTeamsAndWishlists(request).Wait();
+        teamsAndWishlistsSender.SendTeamsAndWishlists(request).Wait();
         Console.WriteLine("SENT MESSAGE");
         
         applicationLifetime.StopApplication();

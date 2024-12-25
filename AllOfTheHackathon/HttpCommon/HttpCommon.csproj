@@ -7,4 +7,8 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\AllOfTheHackathon\AllOfTheHackathon.csproj" />
+	</ItemGroup>
+
 </Project>

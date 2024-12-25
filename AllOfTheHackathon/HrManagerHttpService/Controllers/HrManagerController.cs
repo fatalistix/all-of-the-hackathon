@@ -1,6 +1,6 @@
 using HrManagerHttpService.Models;
-using HrManagerHttpService.Requests;
 using HrManagerHttpService.Services;
+using HttpCommon.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HrManagerHttpService.Controllers;

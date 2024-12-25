@@ -1,3 +1,4 @@
+using HttpCommon.Requests;
 using Refit;
 
 namespace EmployeeHttpService;
@@ -5,5 +6,5 @@ namespace EmployeeHttpService;
 public interface IPreferencesSender
 {
     [Post("/")]
-    Task SendPreferences(Request request);
+    Task SendPreferences(EmployeeRequest request);
 }
