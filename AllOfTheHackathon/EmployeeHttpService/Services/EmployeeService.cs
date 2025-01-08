@@ -26,7 +26,7 @@ public class EmployeeService(
         var teamLeadCsvFile = configuration["TeamLeadsCsvFile"];
         if (string.IsNullOrEmpty(juniorsCsvFile) || string.IsNullOrEmpty(teamLeadCsvFile))
         {
-            throw new ApplicationException("JuniorsCsvFile and TeamLeadCsvFile must be specified.");
+            throw new ApplicationException("JuniorsCsvFile and TeamLeadsCsvFile must be specified.");
         }
         
         var currentCsvFile = employeeConfig.Type == "junior" ? juniorsCsvFile : teamLeadCsvFile;
