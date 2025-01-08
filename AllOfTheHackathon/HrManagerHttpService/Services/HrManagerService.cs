@@ -1,29 +1,29 @@
 using AllOfTheHackathon.Contracts;
 using AllOfTheHackathon.Service.Transient;
+using AutoMapper;
 using HrManagerHttpService.Clients;
 using HrManagerHttpService.Models;
 using HttpCommon.Requests;
-using Microsoft.Extensions.Hosting;
 
 namespace HrManagerHttpService.Services;
 
-public class HrManagerService(HrManager hrManager, 
+public class HrManagerService(
+    HrManager hrManager,
     ITeamsAndWishlistsSender teamsAndWishlistsSender,
-    IHostApplicationLifetime applicationLifetime)
+    IHostApplicationLifetime applicationLifetime,
+    IMapper mapper)
 {
-    public void DoWork(IDictionary<int, EmployeeWithDesiredEmployees> juniorToDesiredTeamLeads, 
-        IDictionary<int, EmployeeWithDesiredEmployees> teamLeadToDesiredJuniors)
+    public void DoWork(IList<EmployeeWithDesiredEmployees> teamLeadsWithDesiredJuniorsList,
+        IList<EmployeeWithDesiredEmployees> juniorsWithDesiredTeamLeadsList)
     {
-        var juniors = juniorToDesiredTeamLeads.Select(e => new Employee(e.Value.Id, e.Value.Name));
-        var teamLeads = teamLeadToDesiredJuniors.Select(e => new Employee(e.Value.Id, e.Value.Name));
-        
-        var juniorsWishlists = juniorToDesiredTeamLeads
-            .Select(e => new Wishlist(e.Key, e.Value.DesiredEmployees.ToArray()))
-            .ToList();
-        var teamLeadsWishlists = teamLeadToDesiredJuniors
-            .Select(e => new Wishlist(e.Key, e.Value.DesiredEmployees.ToArray()))
-            .ToList();
-        
+        var teamLeads = teamLeadsWithDesiredJuniorsList.Select(e => mapper.Map<Employee>(e));
+        var juniors = juniorsWithDesiredTeamLeadsList.Select(e => mapper.Map<Employee>(e));
+
+        var teamLeadsWishlists = teamLeadsWithDesiredJuniorsList
+            .Select(e => new Wishlist(e.Id, e.DesiredEmployees.ToArray())).ToList();
+        var juniorsWishlists = juniorsWithDesiredTeamLeadsList
+            .Select(e => new Wishlist(e.Id, e.DesiredEmployees.ToArray())).ToList();
+
         var teams = hrManager.BuildTeams(teamLeads, juniors, teamLeadsWishlists, juniorsWishlists);
 
         var request = new TeamsAndWishlistsRequest(
@@ -31,7 +31,7 @@ public class HrManagerService(HrManager hrManager,
 
         teamsAndWishlistsSender.SendTeamsAndWishlists(request).Wait();
         Console.WriteLine("SENT MESSAGE");
-        
+
         applicationLifetime.StopApplication();
     }
 }
