@@ -3,10 +3,7 @@ using AllOfTheHackathon.Database.Context;
 using AllOfTheHackathon.Mapper;
 using AllOfTheHackathon.Service.Transient;
 using HrDirectorHttpService.Services;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder();
 builder.Services.AddControllers();
