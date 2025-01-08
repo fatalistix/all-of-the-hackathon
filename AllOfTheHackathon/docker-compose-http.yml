@@ -19,7 +19,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_MULTIPLE_DATABASES}
     ports:
       - "5432:5432"
     healthcheck:
@@ -41,6 +41,13 @@ services:
     depends_on:
       hr-director:
         condition: service_started
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail http://localhost:6969/healthz || exit 1" ]
+      interval: 5s
+      retries: 3
+      timeout: 10s
     networks:
       - hackathon_net
 
@@ -59,7 +66,7 @@ services:
       - "6901:6901"
     depends_on:
       hr-manager:
-        condition: service_started
+        condition: service_healthy
 
   teamlead-2:
     build:
@@ -76,7 +83,7 @@ services:
       - "6902:6902"
     depends_on:
       hr-manager:
-        condition: service_started
+        condition: service_healthy
 
   teamlead-3:
     build:
@@ -93,7 +100,7 @@ services:
       - "6903:6903"
     depends_on:
       hr-manager:
-        condition: service_started
+        condition: service_healthy
 
   teamlead-4:
     build:
@@ -110,7 +117,7 @@ services:
       - "6904:6904"
     depends_on:
       hr-manager:
-        condition: service_started
+        condition: service_healthy
 
   teamlead-5:
     build:
@@ -127,7 +134,7 @@ services:
       - "6905:6905"
     depends_on:
       hr-manager:
-        condition: service_started
+        condition: service_healthy
 
   junior-1:
     build:
@@ -144,7 +151,7 @@ services:
       - "6911:6911"
     depends_on:
       hr-manager:
-        condition: service_started
+        condition: service_healthy
 
   junior-2:
     build:
@@ -161,7 +168,7 @@ services:
       - "6912:6912"
     depends_on:
       hr-manager:
-        condition: service_started
+        condition: service_healthy
 
   junior-3:
     build:
@@ -178,7 +185,7 @@ services:
       - "6913:6913"
     depends_on:
       hr-manager:
-        condition: service_started
+        condition: service_healthy
 
   junior-4:
     build:
@@ -195,7 +202,7 @@ services:
       - "6914:6914"
     depends_on:
       hr-manager:
-        condition: service_started
+        condition: service_healthy
 
   junior-5:
     build:
@@ -212,7 +219,7 @@ services:
       - "6915:6915"
     depends_on:
       hr-manager:
-        condition: service_started
+        condition: service_healthy
         
 networks:
   hackathon_net:
