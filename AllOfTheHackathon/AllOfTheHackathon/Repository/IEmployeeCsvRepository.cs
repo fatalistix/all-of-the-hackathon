@@ -4,7 +4,8 @@ namespace AllOfTheHackathon.Repository;
 
 public interface IEmployeeCsvRepository
 {
-    void LoadFromAssembly(string csvResourcePath);
-    void LoadFromExecutingDirectory(string csvResourcePath);
+    IList<Employee> LoadFromAssembly(string csvResourcePath);
+    IList<Employee> LoadFromExecutingDirectory(string csvResourcePath);
+    [Obsolete("This method was used in combination with 2 upper")]
     IList<Employee> Get();
 }

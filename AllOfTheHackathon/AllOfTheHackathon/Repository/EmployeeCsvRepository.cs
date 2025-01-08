@@ -15,7 +15,7 @@ public class EmployeeCsvRepository : IEmployeeCsvRepository
         Delimiter = ";"
     };
 
-    public void LoadFromAssembly(string csvResourcePath)
+    public IList<Employee> LoadFromAssembly(string csvResourcePath)
     {
         Stream? resourceStream;
         try
@@ -39,9 +39,10 @@ public class EmployeeCsvRepository : IEmployeeCsvRepository
         csvReader.ReadHeader();
 
         _employees = csvReader.GetRecords<Employee>().ToList();
+        return _employees;
     }
 
-    public void LoadFromExecutingDirectory(string csvResourcePath)
+    public IList<Employee> LoadFromExecutingDirectory(string csvResourcePath)
     {
         if (!File.Exists(csvResourcePath))
         {
@@ -54,6 +55,7 @@ public class EmployeeCsvRepository : IEmployeeCsvRepository
         csvReader.ReadHeader();
 
         _employees = csvReader.GetRecords<Employee>().ToList();
+        return _employees;
     }
 
     public IList<Employee> Get()
