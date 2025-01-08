@@ -25,7 +25,7 @@ builder.Services.AddDbContext<HackathonContext>(optionsBuilder =>
     optionsBuilder.UseNpgsql(
         "Host=db;" + 
         "Port=5432;" + 
-        "Database=all-of-the-hackathon;" + 
+        "Database=hr-director;" + 
         "Username=all-of-the-hackathon-owner;" +
         "Password=all-of-the-hackathon-password");
 });
