@@ -8,7 +8,8 @@ namespace HrDirectorHttpService.Services;
 
 public class HrDirectorService(HrDirector hrDirector,
     HackathonContext hackathonContext,
-    IMapper mapper)
+    IMapper mapper,
+    IHostApplicationLifetime hostApplicationLifetime)
 {
     public void DoWork(IList<Team> teams, IList<Wishlist> teamLeadsWishlists, IList<Wishlist> juniorsWishlists)
     {
@@ -56,6 +57,7 @@ public class HrDirectorService(HrDirector hrDirector,
         Console.WriteLine($"Уровень гармоничности: {result}");
         Console.WriteLine($"Идентификатор хакатона: {id}");
         hackathonContext.SaveChanges();
+        hostApplicationLifetime.StopApplication();
     }
 
     private IList<TeamLeadEntity> PersistTeamLeads(IList<TeamLeadEntity> teamLeadEntities)
