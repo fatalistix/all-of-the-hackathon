@@ -1,28 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-	</PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="MassTransit" Version="8.3.2" />
-	  <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.2" />
-	</ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="MassTransit" Version="8.3.2"/>
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.2"/>
+    </ItemGroup>
 
-	<ItemGroup>
-	  <None Update="Juniors5.csv">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	  <None Update="Teamleads5.csv">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
+    <ItemGroup>
+        <None Update="Juniors5.csv">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Teamleads5.csv">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\AllOfTheHackathon\AllOfTheHackathon.csproj" />
-	  <ProjectReference Include="..\RabbitCommon\RabbitCommon.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\AllOfTheHackathon\AllOfTheHackathon.csproj"/>
+        <ProjectReference Include="..\RabbitCommon\RabbitCommon.csproj"/>
+    </ItemGroup>
 
 </Project>
