@@ -8,7 +8,7 @@ public class HackathonStartConsumer(EmployeeService employeeService) : IConsumer
 {
     public Task Consume(ConsumeContext<HackathonStartMessage> context)
     {
-        employeeService.Handle();
+        employeeService.DoWork(context.Message.HackathonId);
         return Task.CompletedTask;
     }
 }

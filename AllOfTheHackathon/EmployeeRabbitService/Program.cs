@@ -3,18 +3,15 @@ using EmployeeRabbitService.Configs;
 using EmployeeRabbitService.Consumers;
 using EmployeeRabbitService.Services;
 using MassTransit;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
+using RabbitCommon.Configs;
 
+var employeeConfig = EmployeeConfigReader.Read();
 var rabbitMqConfig = new RabbitMqConfig();
 
-var type = Environment.GetEnvironmentVariable("EMPLOYEE_TYPE");
-var id = Environment.GetEnvironmentVariable("EMPLOYEE_ID");
-
 var builder = WebApplication.CreateBuilder();
-builder.Services.AddSingleton<StatusService>();
-builder.Services.AddTransient<IEmployeeCsvRepository, EmployeeCsvRepository>();
+builder.Services.AddSingleton(employeeConfig);
 builder.Services.AddTransient<EmployeeService>();
+builder.Services.AddTransient<IEmployeeCsvRepository, EmployeeCsvRepository>();
 builder.Services.AddMassTransit(configure =>
 {
     configure.AddConsumer<HackathonStartConsumer>();
@@ -25,7 +22,7 @@ builder.Services.AddMassTransit(configure =>
             rabbitMqHostConfigurator.Username(rabbitMqConfig.Username);
             rabbitMqHostConfigurator.Password(rabbitMqConfig.Password);
         });
-        cfg.ReceiveEndpoint($"{type}-{id}", e =>
+        cfg.ReceiveEndpoint($"{employeeConfig.Type}-{employeeConfig.Id}", e =>
         {
             e.Consumer<HackathonStartConsumer>(ctx);
         });
