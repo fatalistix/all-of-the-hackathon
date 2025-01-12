@@ -11,6 +11,6 @@ public class TeamsController(CollectingService collectingService)
     [HttpPost]
     public void SendTeams([FromBody] TeamRequest teamRequest)
     {
-        collectingService.AddTeams(teamRequest.Teams);
+        collectingService.AddTeams(teamRequest.Teams, teamRequest.HackathonId);
     }
 }

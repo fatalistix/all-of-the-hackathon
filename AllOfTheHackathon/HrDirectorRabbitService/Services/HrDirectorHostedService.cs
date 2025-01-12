@@ -21,7 +21,7 @@ public class HrDirectorHostedService(StatusService statusService,
     private void Handle()
     {
         hrDirectorService.AddEndOfWorkListener(HandleEndOfWork);
-        publishEndpoint.Publish(new HackathonStartMessage()).Wait();
+        publishEndpoint.Publish(new HackathonStartMessage(Guid.NewGuid())).Wait();
         Console.WriteLine("DIRECTOR STARTED");
     }
 
@@ -35,7 +35,7 @@ public class HrDirectorHostedService(StatusService statusService,
             return;
         }
 
-        publishEndpoint.Publish(new HackathonStartMessage()).Wait();
+        publishEndpoint.Publish(new HackathonStartMessage(Guid.NewGuid())).Wait();
         Console.WriteLine("DIRECTOR CONTINUED");
     }
 

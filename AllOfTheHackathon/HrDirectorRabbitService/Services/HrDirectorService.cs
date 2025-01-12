@@ -12,7 +12,7 @@ public class HrDirectorService(HrDirector hrDirector,
 {
     private readonly List<Action> _endOfWorkListeners = [];
     
-    public void DoWork(IList<Team> teams, IList<Wishlist> teamLeadsWishlists, IList<Wishlist> juniorsWishlists)
+    public void DoWork(IList<Team> teams, IList<Wishlist> teamLeadsWishlists, IList<Wishlist> juniorsWishlists, Guid hackathonId)
     {
         var result = hrDirector.Calculate(teams, teamLeadsWishlists, juniorsWishlists);
 
@@ -42,10 +42,9 @@ public class HrDirectorService(HrDirector hrDirector,
         
         hackathonContext.Teams.AddRange(teamsEntities);
 
-        var id = Guid.NewGuid();
         var hackathonEntity = new HackathonEntity
         {
-            Id = id,
+            Id = hackathonId,
             TeamLeads = teamLeadsEntities,
             Juniors = juniorsEntities,
             TeamLeadWishlists = teamLeadWishlistsEntities,
@@ -56,7 +55,7 @@ public class HrDirectorService(HrDirector hrDirector,
 
         hackathonContext.Hackathons.Add(hackathonEntity);
         Console.WriteLine($"Уровень гармоничности: {result}");
-        Console.WriteLine($"Идентификатор хакатона: {id}");
+        Console.WriteLine($"Идентификатор хакатона: {hackathonId}");
         hackathonContext.SaveChanges();
         
         

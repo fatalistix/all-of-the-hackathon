@@ -8,7 +8,8 @@ public class WishlistsConsumer(CollectingService service) : IConsumer<WishlistsM
 {
     public Task Consume(ConsumeContext<WishlistsMessage> context)
     {
-        service.AddWishlists(context.Message.TeamLeadsWishlists, context.Message.JuniorsWishlists);
+        service.AddWishlists(context.Message.TeamLeadsWishlists, context.Message.JuniorsWishlists,
+            context.Message.HackathonId);
         return Task.CompletedTask;
     }
 }

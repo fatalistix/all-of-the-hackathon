@@ -2,7 +2,6 @@
 using AllOfTheHackathon.Database.Context;
 using AllOfTheHackathon.Mapper;
 using AllOfTheHackathon.Service.Transient;
-using EmployeeRabbitService.Configs;
 using HrDirectorRabbitService.Consumers;
 using HrDirectorRabbitService.Services;
 using MassTransit;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using RabbitCommon.Configs;
 
 var rabbitMqConfig = new RabbitMqConfig();
 
