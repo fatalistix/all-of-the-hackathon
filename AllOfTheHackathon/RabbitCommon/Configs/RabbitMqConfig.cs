@@ -1,4 +1,4 @@
-namespace EmployeeRabbitService.Configs;
+namespace RabbitCommon.Configs;
 
 public class RabbitMqConfig
 {
