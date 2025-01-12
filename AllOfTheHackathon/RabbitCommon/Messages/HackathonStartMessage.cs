@@ -1,3 +1,3 @@
 namespace RabbitCommon.Messages;
 
-public record HackathonStartMessage;
+public record HackathonStartMessage(Guid HackathonId);
