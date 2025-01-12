@@ -7,7 +7,6 @@ namespace HrManagerRabbitService.Consumers;
 
 public class EmployeeConsumer(CollectingService collectingService) : IConsumer<EmployeeMessage>
 {
-    
     public Task Consume(ConsumeContext<EmployeeMessage> context)
     {
         var message = context.Message;
@@ -18,7 +17,8 @@ public class EmployeeConsumer(CollectingService collectingService) : IConsumer<E
             _ => throw new ArgumentException("Unknown employee type")
         };
 
-        collectingService.AddInfo(message.Id, message.Name, message.DesiredEmployees, employeeType);
+        collectingService.AddInfo(message.Id, message.Name, message.DesiredEmployees, employeeType,
+            message.HackathonId);
         return Task.CompletedTask;
     }
 }

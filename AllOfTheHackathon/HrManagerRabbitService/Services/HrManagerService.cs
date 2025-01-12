@@ -1,5 +1,6 @@
 using AllOfTheHackathon.Contracts;
 using AllOfTheHackathon.Service.Transient;
+using AutoMapper;
 using HrManagerRabbitService.Clients;
 using HrManagerRabbitService.Models;
 using MassTransit;
@@ -11,25 +12,24 @@ namespace HrManagerRabbitService.Services;
 
 public class HrManagerService(HrManager hrManager, 
     ITeamSender teamSender,
-    IPublishEndpoint publishEndpoint)
+    IPublishEndpoint publishEndpoint,
+    IMapper mapper)
 {
-    public void DoWork(IDictionary<int, EmployeeWithDesiredEmployees> juniorToDesiredTeamLeads, 
-        IDictionary<int, EmployeeWithDesiredEmployees> teamLeadToDesiredJuniors)
+    public void DoWork(IList<EmployeeWithDesiredEmployees> teamLeadsWithDesiredJuniorsList,
+        IList<EmployeeWithDesiredEmployees> juniorsWithDesiredTeamLeadsList, Guid hackathonId)
     {
-        var juniors = juniorToDesiredTeamLeads.Select(e => new Employee(e.Value.Id, e.Value.Name));
-        var teamLeads = teamLeadToDesiredJuniors.Select(e => new Employee(e.Value.Id, e.Value.Name));
+        var teamLeads = teamLeadsWithDesiredJuniorsList.Select(e => mapper.Map<Employee>(e));
+        var juniors = juniorsWithDesiredTeamLeadsList.Select(e => mapper.Map<Employee>(e));
         
-        var juniorsWishlists = juniorToDesiredTeamLeads
-            .Select(e => new Wishlist(e.Key, e.Value.DesiredEmployees.ToArray()))
-            .ToList();
-        var teamLeadsWishlists = teamLeadToDesiredJuniors
-            .Select(e => new Wishlist(e.Key, e.Value.DesiredEmployees.ToArray()))
-            .ToList();
+        var teamLeadsWishlists = teamLeadsWithDesiredJuniorsList
+            .Select(e => new Wishlist(e.Id, e.DesiredEmployees.ToArray())).ToList();
+        var juniorsWishlists = juniorsWithDesiredTeamLeadsList
+            .Select(e => new Wishlist(e.Id, e.DesiredEmployees.ToArray())).ToList();
         
         var teams = hrManager.BuildTeams(teamLeads, juniors, teamLeadsWishlists, juniorsWishlists);
 
-        var request = new TeamRequest(teams);
-        var message = new WishlistsMessage(teamLeadsWishlists, juniorsWishlists);
+        var request = new TeamRequest(teams, hackathonId);
+        var message = new WishlistsMessage(teamLeadsWishlists, juniorsWishlists, hackathonId);
 
         teamSender.SendTeams(request).Wait();
         publishEndpoint.Publish(message).Wait();

@@ -1,62 +1,65 @@
-using System.Collections.Concurrent;
+using System.Text.Json;
+using HrManagerRabbitService.Databases.Contexts;
+using HrManagerRabbitService.Databases.Entities;
 using HrManagerRabbitService.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace HrManagerRabbitService.Services;
 
-public class CollectingService(HrManagerService service)
+public class CollectingService(IConfiguration configuration, HrManagerContext context)
 {
-    private readonly ConcurrentDictionary<int, EmployeeWithDesiredEmployees> _juniorParticipants = new();
-    private readonly ConcurrentDictionary<int, EmployeeWithDesiredEmployees> _teamLeadParticipants = new();
-    private readonly Mutex _mutex = new();
-
-    public bool AddInfo(int id, string name, IList<int> desiredEmployees, EmployeeType employeeType)
+    public void AddInfo(int id, string name, IList<int> desiredEmployees, EmployeeType employeeType, Guid hackathonId)
     {
-        if (id is < 1 or > 5)
+        var participantsCount = configuration.GetValue<int>("ParticipantsCount");
+        if (id < 1 || id > participantsCount)
         {
-            throw new ArgumentOutOfRangeException(nameof(id), id, "id is less then 1 or greater then 5");
+            throw new ArgumentOutOfRangeException(nameof(id), id,
+                $"id is less then 1 or greater then {participantsCount}");
         }
 
         var desiredEmployeesSet = desiredEmployees.ToHashSet();
-        if (desiredEmployeesSet.Count != 5)
+        if (desiredEmployeesSet.Count != participantsCount)
         {
-            throw new ArgumentException("number of desired employees is not 5");
+            throw new ArgumentException($"number of desired employees is not {participantsCount}");
         }
 
-        for (var i = 1; i < 6; ++i)
+        for (var i = 1; i <= participantsCount; ++i)
         {
             desiredEmployeesSet.Remove(i);
         }
 
         if (desiredEmployeesSet.Count != 0)
         {
-            throw new ArgumentException("desired employees contains invalid ids (must be 1 to 5)");
+            throw new ArgumentException($"desired employees contains invalid ids (must be 1 to {participantsCount})");
         }
-        
+
         switch (employeeType)
         {
             case EmployeeType.Junior:
-                _juniorParticipants[id] = new EmployeeWithDesiredEmployees(id, name, desiredEmployees);
+                AddJunior(id, name, desiredEmployees, hackathonId);
                 break;
             case EmployeeType.Teamlead:
-                _teamLeadParticipants[id] = new EmployeeWithDesiredEmployees(id, name, desiredEmployees);
+                AddTeamLead(id, name, desiredEmployees, hackathonId);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(employeeType), employeeType, "unknown employee type");
         }
 
-        var result = false;
+        Console.WriteLine($"Wrote info about {id} and {name} with type {employeeType}");
+        context.SaveChanges();
+    }
 
-        _mutex.WaitOne();
-        Console.WriteLine($"{_juniorParticipants.Count} <==> {_teamLeadParticipants.Count}");
-        if (_juniorParticipants.Count == 5 && _teamLeadParticipants.Count == 5)
-        {
-            service.DoWork(_juniorParticipants, _teamLeadParticipants);
-            _juniorParticipants.Clear();
-            _teamLeadParticipants.Clear();
-            result = true;
-        }
-        _mutex.ReleaseMutex();
+    private void AddJunior(int id, string name, IList<int> desiredEmployees, Guid hackathonId)
+    {
+        var junior =
+            new JuniorWithDesiredTeamLeadsIds(id, name, JsonSerializer.Serialize(desiredEmployees), hackathonId);
+        context.Juniors.Add(junior);
+    }
 
-        return result;
+    private void AddTeamLead(int id, string name, IList<int> desiredEmployees, Guid hackathonId)
+    {
+        var teamLead =
+            new TeamLeadWithDesiredJuniorsIds(id, name, JsonSerializer.Serialize(desiredEmployees), hackathonId);
+        context.TeamLeads.Add(teamLead);
     }
 }
