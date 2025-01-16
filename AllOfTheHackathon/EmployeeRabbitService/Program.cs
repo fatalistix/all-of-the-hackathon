@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder();
 builder.Services.AddSingleton(employeeConfig);
 builder.Services.AddTransient<EmployeeService>();
 builder.Services.AddTransient<IEmployeeCsvRepository, EmployeeCsvRepository>();
+builder.Configuration.AddJsonFile("appsettings.Employee.json", true, true);
 builder.Services.AddMassTransit(configure =>
 {
     configure.AddConsumer<HackathonStartConsumer>();
