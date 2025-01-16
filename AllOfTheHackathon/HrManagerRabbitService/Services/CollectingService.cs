@@ -2,7 +2,6 @@ using System.Text.Json;
 using HrManagerRabbitService.Databases.Contexts;
 using HrManagerRabbitService.Databases.Entities;
 using HrManagerRabbitService.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace HrManagerRabbitService.Services;
 
