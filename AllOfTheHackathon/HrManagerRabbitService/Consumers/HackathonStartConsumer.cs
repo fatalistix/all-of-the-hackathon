@@ -8,7 +8,11 @@ public class HackathonStartConsumer(CheckingService service) : IConsumer<Hackath
 {
     public Task Consume(ConsumeContext<HackathonStartMessage> context)
     {
-        service.Start(context.Message.HackathonId); 
+        service.HackathonIds[context.Message.HackathonId] = true;
+        if (Interlocked.CompareExchange(ref service.IsStarted, 1, 0) == 0)
+        {
+            service.StartAsync(CancellationToken.None);
+        }
         return Task.CompletedTask;
     }
 }
