@@ -15,12 +15,13 @@ using Refit;
 var rabbitMqConfig = new RabbitMqConfig();
 
 var builder = WebApplication.CreateBuilder();
-builder.Services.AddTransient<CheckingService>();
+builder.Services.AddControllers();
 builder.Services.AddTransient<CollectingService>();
 builder.Services.AddTransient<HrManagerService>();
 builder.Services.AddTransient<HrManager>();
 builder.Services.AddTransient<ITeamBuildingStrategy, GaleShapleyTeamBuildingStrategy>();
 builder.Services.AddTransient<ITeamSender>(_ => RestService.For<ITeamSender>("http://hr-director:6970"));
+builder.Services.AddSingleton<CheckingService>();
 builder.Services.AddAutoMapper(typeof(EmployeeWithDesiredEmployeesProfile));
 builder.Services.AddHealthChecks();
 builder.Services.AddDbContext<HrManagerContext>(optionsBuilder =>
@@ -49,10 +50,12 @@ builder.Services.AddMassTransit(configure =>
         cfg.ReceiveEndpoint("hr-manager-hackathon-start", e => { e.Consumer<HackathonStartConsumer>(ctx); });
     });
 });
+builder.WebHost.ConfigureKestrel(options => options.ListenLocalhost(6969)); 
 builder.Configuration.AddJsonFile("appsettings.HrManager.json", true, true);
 
 var app = builder.Build();
 
+app.MapControllers();
 app.MapHealthChecks("/healthz");
 
 using (var serviceScope = app.Services.CreateScope())
