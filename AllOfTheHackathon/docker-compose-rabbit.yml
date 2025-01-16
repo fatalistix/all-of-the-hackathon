@@ -20,53 +20,6 @@ services:
         condition: service_healthy
       db:
         condition: service_healthy
-
-  rabbitmq:
-    image: rabbitmq:management
-    ports:
-      - "5672:5672"
-    environment:
-      - RABBITMQ_DEFAULT_USER=${RABBIT_MQ_USERNAME}
-      - RABBITMQ_DEFAULT_PASS=${RABBIT_MQ_PASSWORD}
-    healthcheck:
-      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - hackathon_net
-
-  db:
-    image: "postgres:16.2"
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d hackathon-problem -U postgres || exit 1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    networks:
-      - hackathon_net
-  
-  hr-manager:
-    build:
-      context: .
-      dockerfile: ./HrManagerRabbitService/Dockerfile
-    deploy:
-      replicas: 1
-    environment:
-      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
-      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
-      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      hr-director:
-        condition: service_started
       teamlead-1:
         condition: service_started
       teamlead-2:
@@ -87,6 +40,59 @@ services:
         condition: service_started
       junior-5:
         condition: service_started
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBIT_MQ_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${RABBIT_MQ_PASSWORD}
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hackathon_net
+
+  db:
+    image: "postgres:16.2"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_MULTIPLE_DATABASES: ${POSTGRES_MULTIPLE_DATABASES}
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d hackathon-problem -U postgres || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - hackathon_net
+  
+  hr-manager:
+    build:
+      context: .
+      dockerfile: ./HrManagerRabbitService/Dockerfile
+    deploy:
+      replicas: 1
+    environment:
+      RABBIT_MQ_HOST: ${RABBIT_MQ_HOST}
+      RABBIT_MQ_USERNAME: ${RABBIT_MQ_USERNAME}
+      RABBIT_MQ_PASSWORD: ${RABBIT_MQ_PASSWORD}
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail http://localhost:6969/healthz || exit 1" ]
+      interval: 5s
+      retries: 3
+      timeout: 10s
+    depends_on:
+      rabbitmq:
+        condition: service_healthy  
+      db:
+        condition: service_healthy
     networks:
       - hackathon_net
 
@@ -96,6 +102,8 @@ services:
       dockerfile: ./EmployeeRabbitService/Dockerfile
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      hr-manager:
         condition: service_healthy
     networks:
       - hackathon_net
@@ -115,6 +123,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      hr-manager:
+        condition: service_healthy
     networks:
       - hackathon_net
     deploy:
@@ -132,6 +142,8 @@ services:
       dockerfile: ./EmployeeRabbitService/Dockerfile
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      hr-manager:
         condition: service_healthy
     networks:
       - hackathon_net
@@ -151,6 +163,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      hr-manager:
+        condition: service_healthy
     networks:
       - hackathon_net
     deploy:
@@ -168,6 +182,8 @@ services:
       dockerfile: ./EmployeeRabbitService/Dockerfile
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      hr-manager:
         condition: service_healthy
     networks:
       - hackathon_net
@@ -187,6 +203,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      hr-manager:
+        condition: service_healthy
     networks:
       - hackathon_net
     deploy:
@@ -204,6 +222,8 @@ services:
       dockerfile: ./EmployeeRabbitService/Dockerfile
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      hr-manager:
         condition: service_healthy
     networks:
       - hackathon_net
@@ -223,6 +243,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      hr-manager:
+        condition: service_healthy
     networks:
       - hackathon_net
     deploy:
@@ -241,6 +263,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+      hr-manager:
+        condition: service_healthy
     networks:
       - hackathon_net
     deploy:
@@ -258,6 +282,8 @@ services:
       dockerfile: ./EmployeeRabbitService/Dockerfile
     depends_on:
       rabbitmq:
+        condition: service_healthy
+      hr-manager:
         condition: service_healthy
     networks:
       - hackathon_net
