@@ -19,4 +19,10 @@ public sealed class HrManagerContext : DbContext
         Database.EnsureCreated();
         Database.Migrate();
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<JuniorWithDesiredTeamLeadsIds>().HasKey(x => new { x.Id, x.HackathonId });
+        modelBuilder.Entity<TeamLeadWithDesiredJuniorsIds>().HasKey(x => new { x.Id, x.HackathonId });
+    }
 }
