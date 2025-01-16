@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using AutoMapper;
 using HrManagerRabbitService.Databases.Contexts;
 using HrManagerRabbitService.Models;
@@ -9,23 +10,31 @@ public class CheckingService(
     IConfiguration configuration,
     HrManagerContext context,
     HrManagerService service,
-    IMapper mapper)
+    IMapper mapper) : BackgroundService
 {
-    private Timer? _timer;
-
-    public void Start(Guid hackathonId)
+    public readonly ConcurrentDictionary<Guid, bool> HackathonIds = new();
+    public int IsStarted = 0;
+    
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var delay = configuration.GetValue<int>("CheckingDelay");
-        _timer = new Timer(DoWork, hackathonId, TimeSpan.Zero, TimeSpan.FromSeconds(delay));
-    }
 
-    private void DoWork(object? state)
-    {
-        if (state is not Guid hackathonId)
+        while (!stoppingToken.IsCancellationRequested)
         {
-            throw new InvalidOperationException($"Expected hackathon's id as state, but received {state?.GetType()}");
+            using (var enumerator = HackathonIds.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    var id = enumerator.Current.Key;
+                    DoWork(id);
+                }
+            }
+            await Task.Delay(delay * 1000, stoppingToken);
         }
-
+    }
+    
+    private void DoWork(Guid hackathonId)
+    {
         var count = configuration.GetValue<int>("ParticipantsCount");
         context.Juniors.Load();
         context.TeamLeads.Load();
@@ -38,14 +47,9 @@ public class CheckingService(
             return;
         }
 
-        Stop();
         var teamLeads = teamLeadsEntities.Select(mapper.Map<EmployeeWithDesiredEmployees>).ToList();
         var juniors = juniorsEntities.Select(mapper.Map<EmployeeWithDesiredEmployees>).ToList();
         service.DoWork(teamLeads, juniors, hackathonId);
-    }
-
-    private void Stop()
-    {
-        _timer?.Change(Timeout.Infinite, 0);
+        HackathonIds.Remove(hackathonId, out _);
     }
 }
